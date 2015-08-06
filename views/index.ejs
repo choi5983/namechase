@@ -1,0 +1,31 @@
+<h1>Game Demo</h1>
+<script type ="text/javascript" src="/socket.io/socket.io.js"></script>
+
+<div id='world'>
+</div>
+
+<script>
+	var socket = io.connect();
+	var a = prompt("What is your name?");
+	console.log(a);
+
+	var mapping = {37: {x: -1, y:0}, 39: {x: 1, y:0}, 38: {x:0, y:-1}, 40: {x: 0, y:1}}
+
+	document.onkeydown = function(e){
+		socket.emit("moved", {sessionID: '<%= sessionID %>', x: mapping[e.keyCode].x, y: mapping[e.keyCode].y});
+	}
+
+	socket.emit("got_name", {name: a, sessionID: '<%= sessionID %>'});
+
+	socket.on("updated_players", function(data){
+		console.log('updated_payers', data);
+
+		var html = '';
+		console.log('player length', data.players.length);
+		for(i in data.players)
+		{
+			html += "<div class='player' style='position:absolute; top: "+data.players[i].coordinates.y+"px; left:"+data.players[i].coordinates.x+"px;'>"+data.players[i].name+"</div>"
+		}
+		document.getElementById('world').innerHTML = html;
+	})
+</script>
